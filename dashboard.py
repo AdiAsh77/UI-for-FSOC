@@ -634,7 +634,7 @@ SPEC_EVAL = [('Functional verification', 20, '#2f8fd1', '10-15 min live demo. Cr
              ('Technical evaluation', 20, '#d24b4b', 'Presentation of approach, methods, architecture and design. Criteria: understanding of the problem, system architecture and software design, algorithm selection, AI and computer vision, innovation and novelty, technical documentation and presentation, technical discussion and Q&A')]
 SPEC_META = [('Organization', 'Department of Space / Indian Space Research Organisation'), ('Category', 'Software'),
              ('Theme', 'Smart Automation, Space Technology')]
-SPEC_LINK_URL = 'https://www.instagram.com/adiash77/'   # where the Spec reference tab's top-right button sends you
+SPEC_LINK_URL = 'https://problem-statement-sih26169.drops.sh/'   # where the Spec reference tab's top-right button sends you
 
 class WheelGuard(QObject):
     """App-wide event filter: the mouse wheel over a slider or dropdown that sits inside a
