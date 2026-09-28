@@ -2002,8 +2002,19 @@ class Main(QMainWindow):
         s.bl = QListWidget(); s.bl.currentRowChanged.connect(lambda i: i >= 0 and (setattr(s, 'sel', i), s.draw_details()))
         s.add_bench_btn = btn('Add benchmark', False, s._show_add_benchmark_menu)
         left = QWidget(); ll = QVBoxLayout(left); ll.setContentsMargins(0, 0, 0, 0); ll.addWidget(s.add_bench_btn); ll.addWidget(s.bl)
-        s.dn = QLabel(); s.dn.setObjectName('h3'); s.dmeta = QLabel(); s.dmeta.setObjectName('mut'); s.kpi = QLabel(); s.kpi.setTextFormat(Qt.TextFormat.RichText)
+        s.dn = QLabel(); s.dn.setObjectName('h3'); s.dmeta = QLabel(); s.dmeta.setObjectName('mut'); s.dmeta.setWordWrap(True)
+        # KPI strip: one wrapping cell per criterion in a 4-column grid (rebuilt by draw_details). It used to be a
+        # single unwrapped rich-text QLabel, whose minimum width (7 criteria side by side) pushed the whole page
+        # wider than the window — that is what forced the horizontal scrolling and cut off the second chart.
+        s.kpi = QWidget(); s.kpi_grid = QGridLayout(s.kpi); s.kpi_grid.setContentsMargins(0, 0, 0, 0)
+        s.kpi_grid.setHorizontalSpacing(8); s.kpi_grid.setVerticalSpacing(0)
+        for c in range(len(CR)): s.kpi_grid.setColumnStretch(c, 1)   # one column per criterion -> a single row
         s.dtab = table(['Scenario'])
+        # Details table: always fits the panel — no horizontal scrollbar, headings wrap onto several lines
+        # instead of being elided (see draw_details for the wrapped labels and the Scenario column width).
+        s.dtab.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        _hh = s.dtab.horizontalHeader(); _hh.setTextElideMode(Qt.TextElideMode.ElideNone); _hh.setMinimumSectionSize(44)
+        _hh.setStyleSheet('QHeaderView::section { padding: 6px 3px; }')
         vb = btn('View in Video tab', True, lambda: (s.go(2), s.vsub.setText(f"Reviewing benchmark: {s.bench[s.sel]['name']}. Import its MP4 to replay.")))
         right = QWidget(); rl = QVBoxLayout(right); rl.setContentsMargins(0, 0, 0, 0); tr = QHBoxLayout(); tr.addWidget(s.dn); tr.addStretch(); tr.addWidget(vb)
         rl.addLayout(tr); rl.addWidget(s.dmeta); rl.addWidget(s.kpi); rl.addWidget(s.dtab, 1)
@@ -2108,10 +2119,23 @@ class Main(QMainWindow):
             th = SPEC_THRESH[j]
             if not th: return ''
             lim, lower = th; v = avg(j); ok = (v <= lim) if lower else (v >= lim)
-            return f" <span style='background:{T['ok'] if ok else T['bc']};color:{T['onac']};border-radius:6px;padding:1px 6px;font-size:10px;font-weight:800'>{'PASS' if ok else 'FAIL'}</span>"
-        s.kpi.setText(''.join(f"<span style='font-size:17px;font-weight:800'>{avg(j):.{FM[j] or 1}f}</span> "
-                               f"<span style='color:{T['mut']}'>avg {CR[j]}</span>{badge(j)}&nbsp;&nbsp;&nbsp;&nbsp;" for j in cols))
-        s.dtab.setColumnCount(len(cols) + 1); s.dtab.setHorizontalHeaderLabels(['Scenario'] + [CR[j] for j in cols]); s.dtab.setRowCount(len(b['rows']))
+            return f" <span style='background:{T['ok'] if ok else T['bc']};color:{T['onac']};border-radius:6px;padding:1px 6px;font-size:8px;font-weight:800'>{'PASS' if ok else 'FAIL'}</span>"
+        while s.kpi_grid.count():
+            it = s.kpi_grid.takeAt(0); w = it.widget()
+            if w is not None: w.setParent(None); w.deleteLater()
+        for n, j in enumerate(cols):
+            lab = QLabel(f"<span style='font-size:13px;font-weight:800'>{avg(j):.{FM[j] or 1}f}</span>{badge(j)}"
+                         f"<br><span style='color:{T['mut']};font-size:9px'>avg {CR[j]}</span>")
+            lab.setTextFormat(Qt.TextFormat.RichText); lab.setWordWrap(True)
+            s.kpi_grid.addWidget(lab, 0, n)   # all criteria on ONE row (was n // 4, n % 4 -> two rows)
+        s.dtab.setColumnCount(len(cols) + 1)
+        # headings break at every space ('Tracking RMSE (px)' -> 3 short lines) so all 7 criteria fit side by side
+        s.dtab.setHorizontalHeaderLabels(['Scenario'] + [CR[j].replace(' ', '\n') for j in cols]); s.dtab.setRowCount(len(b['rows']))
+        hh = s.dtab.horizontalHeader(); hh.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        hh.setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)   # headings centred over their column...
+        s.dtab.horizontalHeaderItem(0).setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        fm = s.dtab.fontMetrics(); longest = max([fm.horizontalAdvance(r[0]) for r in b['rows']] + [fm.horizontalAdvance('Scenario')])
+        s.dtab.setColumnWidth(0, max(110, min(200, longest + 28)))
         for i, r in enumerate(b['rows']):
             s.dtab.setItem(i, 0, QTableWidgetItem(r[0]))
             for c, j in enumerate(cols):
@@ -2119,6 +2143,7 @@ class Main(QMainWindow):
                 if th:
                     lim, lower = th; ok = (r[j + 1] <= lim) if lower else (r[j + 1] >= lim)
                     it.setForeground(QColor(T['ok'] if ok else T['bc']))
+                it.setTextAlignment(Qt.AlignmentFlag.AlignCenter)   # ...and readings centred too, so they sit right under them
                 s.dtab.setItem(i, c + 1, it)
         if hasattr(s, 'dbar') and s.dcrit.currentIndex() not in cols: s.dcrit.setCurrentIndex(cols[0])
         if hasattr(s, 'dbar'): s.dbar.thresh = s.dtrend.thresh = SPEC_THRESH[s.dcrit.currentIndex()]; s.dbar.update(); s.dtrend.update()

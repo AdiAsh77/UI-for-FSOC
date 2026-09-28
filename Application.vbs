@@ -1,0 +1,1 @@
+CreateObject("Wscript.Shell").Run "cmd /c ""C:\Users\Aditya Bose\GitHub\UI-for-FSOC\Application.bat""", 0, True

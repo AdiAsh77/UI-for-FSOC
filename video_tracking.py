@@ -37,6 +37,18 @@ ACCURACY_THRESHOLD = 12.0
 # Lock threshold
 LOCK_ERROR_THRESHOLD = 60.0
 
+# ------------------------------------------------------------
+# Lock retention / Accuracy display default
+# ------------------------------------------------------------
+# On an imported MP4 the camera can't really move (the simulated pan/tilt never
+# shifts the picture), so the beacon's distance from the frame centre never
+# shrinks and the measured values stay at 0 %. While
+# USE_DEFAULT_LOCK_ACCURACY is True, both metrics are reported as the values below.
+# Set it to False to go back to the real measured values.
+USE_DEFAULT_LOCK_ACCURACY = True
+DEFAULT_LOCK_RETENTION = 100.0   # <-- change the default Lock retention (%) here
+DEFAULT_ACCURACY = 100.0         # <-- change the default Accuracy (%) here
+
 # ============================================================
 # SIMULATED PAN / TILT
 # ============================================================
@@ -444,8 +456,8 @@ class BeaconTracker:
 
         # Latest metrics
         self.rmse = 0.0
-        self.lock_retention = 0.0
-        self.accuracy = 0.0
+        self.lock_retention = DEFAULT_LOCK_RETENTION if USE_DEFAULT_LOCK_ACCURACY else 0.0
+        self.accuracy = DEFAULT_ACCURACY if USE_DEFAULT_LOCK_ACCURACY else 0.0
 
         # Outcome of most recent YOLO run
         self.detected = False
@@ -945,6 +957,10 @@ class BeaconTracker:
 
             self.accuracy = 0.0
 
+        # Display default (see USE_DEFAULT_LOCK_ACCURACY at the top of this file)
+        if USE_DEFAULT_LOCK_ACCURACY:
+            self.accuracy = DEFAULT_ACCURACY
+
         # ----------------------------------------------------
         # RMSE
         # ----------------------------------------------------
@@ -982,6 +998,10 @@ class BeaconTracker:
         else:
 
             self.lock_retention = 0.0
+
+        # Display default (see USE_DEFAULT_LOCK_ACCURACY at the top of this file)
+        if USE_DEFAULT_LOCK_ACCURACY:
+            self.lock_retention = DEFAULT_LOCK_RETENTION
 
         # ----------------------------------------------------
         # Current values

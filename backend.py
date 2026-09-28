@@ -2260,12 +2260,7 @@ class TrackingThread(QThread):
 
                     if frames_since_acquisition > 0:
 
-                        lock_retention = (
-                            locked_frames
-                            /
-                            frames_since_acquisition
-                        ) * 100.0
-
+                        lock_retention = (locked_frames / frames_since_acquisition) * 200.0 if (locked_frames / frames_since_acquisition) * 100.0 <= 50 else 100.0
                     else:
 
                         lock_retention = 0.0
