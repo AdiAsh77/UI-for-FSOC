@@ -1,0 +1,25 @@
+Beacon Settings:
+  Start Position: Out Of Fov
+  Colour: Orange
+  Blink: ON
+  Shape: Square
+  Size: 3px
+  Movement Type: Mixed
+
+Satellite Settings:
+  Distance from beacon: 105
+  No. Of Beacons: 1
+  Extra Beacon Position: Random
+  Satellite Position: Random
+  Satellite Rotation: Random
+
+Disturbances:
+  Noise Level: 0.45
+  Blur Level: 0.45
+  Atmospheric Disturbance: 0.55
+  Max Standard Deviation (px): 13
+  Max Camera Jitter (px): 13
+  Platform Motion: 11
+
+Camera Settings:
+  Simulation time: 180

@@ -1,0 +1,25 @@
+Beacon Settings:
+  Start Position: Top-Left
+  Colour: Tomato
+  Blink: ON
+  Shape: Triangle
+  Size: 7px
+  Movement Type: Figure 8
+
+Satellite Settings:
+  Distance from beacon: 110
+  No. Of Beacons: 1
+  Extra Beacon Position: Random
+  Satellite Position: Random
+  Satellite Rotation: Random
+
+Disturbances:
+  Noise Level: 0.25
+  Blur Level: 0.35
+  Atmospheric Disturbance: 0.2
+  Max Standard Deviation (px): 9
+  Max Camera Jitter (px): 8
+  Platform Motion: 9
+
+Camera Settings:
+  Simulation time: 60

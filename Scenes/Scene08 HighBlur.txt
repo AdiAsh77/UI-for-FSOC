@@ -1,0 +1,25 @@
+Beacon Settings:
+  Start Position: Top-Left
+  Colour: Scarlet
+  Blink: OFF
+  Shape: Cross
+  Size: 8px
+  Movement Type: Straight Vertical
+
+Satellite Settings:
+  Distance from beacon: 140
+  No. Of Beacons: 1
+  Extra Beacon Position: Random
+  Satellite Position: Random
+  Satellite Rotation: Random
+
+Disturbances:
+  Noise Level: 0.2
+  Blur Level: 0.8
+  Atmospheric Disturbance: 0.45
+  Max Standard Deviation (px): 15
+  Max Camera Jitter (px): 14
+  Platform Motion: 15
+
+Camera Settings:
+  Simulation time: 150
